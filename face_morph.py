@@ -2,7 +2,8 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from scipy.interpolate import LinearNDInterpolator
+# from scipy.interpolate import LinearNDInterpolator
+from scipy.interpolate import CloughTocher2DInterpolator
 
 import folder_paths
 
@@ -156,7 +157,7 @@ class FaceMorph:
         src_points[:, [0, 1]] = src_points[:, [1, 0]]
         dst_points[:, [0, 1]] = dst_points[:, [1, 0]]
 
-        interp = LinearNDInterpolator(src_points, dst_points)
+        interp = CloughTocher2DInterpolator(src_points, dst_points)
 
         xx, yy = np.meshgrid(np.arange(width), np.arange(height))
         map_coords = interp(np.column_stack((yy.ravel(), xx.ravel()))).reshape(height, width, 2).astype(np.float32)
