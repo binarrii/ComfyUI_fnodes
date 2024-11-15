@@ -107,27 +107,28 @@ class LandmarkRunnerTorch(object):
         return out
 
     def run(self, img_rgb: np.ndarray, lmk=None):
-        if lmk is not None:
-            crop_dct, img_crop_rgb = crop_image(img_rgb, lmk, dsize=self.dsize, scale=1.5, vy_ratio=-0.1)
-        else:
-            img_crop_rgb = cv2.resize(img_rgb, (self.dsize, self.dsize))
-            scale = max(img_rgb.shape[:2]) / self.dsize
-            crop_dct = {
-                'M_c2o': np.array([
-                    [scale, 0., 0.],
-                    [0., scale, 0.],
-                    [0., 0., 1.],
-                ], dtype=np.float32),
+        with torch.no_grad():
+            if lmk is not None:
+                crop_dct, img_crop_rgb = crop_image(img_rgb, lmk, dsize=self.dsize, scale=1.5, vy_ratio=-0.1)
+            else:
+                img_crop_rgb = cv2.resize(img_rgb, (self.dsize, self.dsize))
+                scale = max(img_rgb.shape[:2]) / self.dsize
+                crop_dct = {
+                    'M_c2o': np.array([
+                        [scale, 0., 0.],
+                        [0., scale, 0.],
+                        [0., 0., 1.],
+                    ], dtype=np.float32),
+                }
+
+            inp = (img_crop_rgb.astype(np.float32) / 255.).transpose(2, 0, 1)[None, ...]  # HxWx3 (BGR) -> 1x3xHxW (RGB!)
+
+            out_lst = self._run(inp)
+            out_pts = out_lst[2]
+
+            pts = to_ndarray(out_pts[0]).reshape(-1, 2) * self.dsize  # scale to 0-224
+            pts = _transform_pts(pts, M=crop_dct['M_c2o'])
+            del crop_dct, img_crop_rgb
+            return {
+                'pts': pts,  # 2d landmarks 203 points
             }
-
-        inp = (img_crop_rgb.astype(np.float32) / 255.).transpose(2, 0, 1)[None, ...]  # HxWx3 (BGR) -> 1x3xHxW (RGB!)
-
-        out_lst = self._run(inp)
-        out_pts = out_lst[2]
-
-        pts = to_ndarray(out_pts[0]).reshape(-1, 2) * self.dsize  # scale to 0-224
-        pts = _transform_pts(pts, M=crop_dct['M_c2o'])
-        del crop_dct, img_crop_rgb
-        return {
-            'pts': pts,  # 2d landmarks 203 points
-        }
