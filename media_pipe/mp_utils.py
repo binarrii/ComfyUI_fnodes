@@ -18,9 +18,9 @@ class LMKExtractor():
                                             output_face_blendshapes=False,
                                             output_facial_transformation_matrixes=True,
                                             num_faces=1,
-                                            min_face_detection_confidence=0.5,
-                                            min_face_presence_confidence=0.5,
-                                            min_tracking_confidence=0.5)
+                                            min_face_detection_confidence=0.3,
+                                            min_face_presence_confidence=0.3,
+                                            min_tracking_confidence=0.3)
         self.detector = face_landmark.FaceLandmarker.create_from_options(options)
 
         det_base_options = python.BaseOptions(model_asset_path=os.path.join(CUR_DIR, 'mp_models','blaze_face_short_range.tflite'))
