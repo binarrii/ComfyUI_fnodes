@@ -13,7 +13,7 @@ class LMKExtractor():
         self.mode = mp.tasks.vision.FaceDetectorOptions.running_mode.IMAGE
         base_options = python.BaseOptions(model_asset_path=os.path.join(CUR_DIR, 'mp_models','face_landmarker_v2_with_blendshapes.task'))
         base_options.delegate = mp.tasks.BaseOptions.Delegate.CPU
-        confidence = os.getenv('MP_FACE_DETECTION_CONFIDENCE') or 0.5,
+        confidence = float(os.getenv('MP_FACE_DETECTION_CONFIDENCE') or 0.5)
         options = vision.FaceLandmarkerOptions(base_options=base_options,
                                             running_mode=self.mode,
                                             output_face_blendshapes=False,
