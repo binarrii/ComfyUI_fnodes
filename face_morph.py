@@ -13,13 +13,14 @@ from .utils.image_convert import pil2tensor
 
 _CATEGORY = 'fnodes/face_analysis'
 
+class LandmarkExtractError(RuntimeError): ...
 
 class FaceLandmarkExtractor(CropperMediaPipe):
     def extract_face_landmarks(self, img_rgb, face_index):
         landmark_info = {}
         face_result = self.lmk_extractor(img_rgb)
         if face_result is None:
-            raise Exception('未在图像中检测到人脸。')
+            raise LandmarkExtractError('未在图像中检测到人脸')
         face_landmarks = face_result[face_index]
         lmks = [[face_landmarks[index].x * img_rgb.shape[1], face_landmarks[index].y * img_rgb.shape[0]] for index in range(len(face_landmarks))]
         recon_ret = self.landmark_runner.run(img_rgb, np.array(lmks))

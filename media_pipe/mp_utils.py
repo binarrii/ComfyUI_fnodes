@@ -13,14 +13,15 @@ class LMKExtractor():
         self.mode = mp.tasks.vision.FaceDetectorOptions.running_mode.IMAGE
         base_options = python.BaseOptions(model_asset_path=os.path.join(CUR_DIR, 'mp_models','face_landmarker_v2_with_blendshapes.task'))
         base_options.delegate = mp.tasks.BaseOptions.Delegate.CPU
+        confidence = os.getenv('MP_FACE_DETECTION_CONFIDENCE') or 0.5,
         options = vision.FaceLandmarkerOptions(base_options=base_options,
                                             running_mode=self.mode,
                                             output_face_blendshapes=False,
                                             output_facial_transformation_matrixes=True,
                                             num_faces=1,
-                                            min_face_detection_confidence=0.3,
-                                            min_face_presence_confidence=0.3,
-                                            min_tracking_confidence=0.3)
+                                            min_face_detection_confidence=confidence,
+                                            min_face_presence_confidence=confidence,
+                                            min_tracking_confidence=confidence)
         self.detector = face_landmark.FaceLandmarker.create_from_options(options)
 
         det_base_options = python.BaseOptions(model_asset_path=os.path.join(CUR_DIR, 'mp_models','blaze_face_short_range.tflite'))
